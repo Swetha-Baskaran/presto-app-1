@@ -26,7 +26,7 @@ const OptionComponent = ({
 	return (
 		<button
 			className={`mx-4 my-2 px-4  ${
-				checkSelectedOption === index ? "bg-green-900 text-white" : ""
+				checkSelectedOption === index ? "bg-green-500" : ""
 			}`}
 			value={value}
 			onClick={() => {

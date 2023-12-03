@@ -25,9 +25,10 @@ const OptionComponent = ({
 }) => {
 	return (
 		<button
-			className={`mx-4 my-2 px-4  ${
-				checkSelectedOption === index ? "bg-green-900" : ""
-			}`}
+			className={`mx-4 my-2 px-4  `}
+			style={{
+				border: checkSelectedOption === index ? "2px solid green" : "",
+			}}
 			value={value}
 			onClick={() => {
 				handleSelectOption(value, index);

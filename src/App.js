@@ -152,7 +152,7 @@ function App() {
 				{showScore ? (
 					<>
 						<h2>
-							{score} out of {questions.length}
+							SCORE: {score} out of {questions.length}
 						</h2>
 						{
 							// showing the list of qn ans

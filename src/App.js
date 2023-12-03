@@ -1,11 +1,13 @@
-import logo from "./logo.svg";
 import "./App.css";
 import {useState} from "react";
+import MCQ from "./QnTypes/MCQ";
+import Description from "./QnTypes/Description";
 
 function App() {
 	const questions = [
 		{
 			question: "What is the capital of Japan?",
+			type: "mcq",
 			options: [
 				{option: "Tokyo", iscorrect: true},
 				{option: "Seoul", iscorrect: false},
@@ -15,7 +17,13 @@ function App() {
 			],
 		},
 		{
+			question: "What is the capital of Japan?",
+			type: "description",
+			maxLength: 10,
+		},
+		{
 			question: "Which planet is known as the 'Red Planet'?",
+			type: "mcq",
 			options: [
 				{option: "Mars", iscorrect: true},
 				{option: "Jupiter", iscorrect: false},
@@ -26,6 +34,7 @@ function App() {
 		},
 		{
 			question: "Who wrote 'To Kill a Mockingbird'?",
+			type: "mcq",
 			options: [
 				{option: "Harper Lee", iscorrect: true},
 				{option: "F. Scott Fitzgerald", iscorrect: false},
@@ -36,6 +45,7 @@ function App() {
 		},
 		{
 			question: "What is the largest ocean on Earth?",
+			type: "mcq",
 			options: [
 				{option: "Pacific Ocean", iscorrect: true},
 				{option: "Atlantic Ocean", iscorrect: false},
@@ -47,6 +57,7 @@ function App() {
 		{
 			question:
 				"Which programming language is used for building mobile applications?",
+			type: "mcq",
 			options: [
 				{option: "Swift", iscorrect: false},
 				{option: "Java", iscorrect: false},
@@ -62,22 +73,37 @@ function App() {
 		Array.from({length: questions.length}, () => ({
 			optionNumber: null,
 			score: null,
+			description: "",
 		}))
 	);
 
 	const [score, setScore] = useState(0);
 	const [showScore, setShowScore] = useState(false);
 
-	const handleSelectOption = (option, index) => {
+	const handleDescriptionQns = (description, maxLength) => {
+		console.log("test", description);
+		if (description.length <= maxLength) {
+			const tempcurrentSelectedOption = [...currentSelectedOption];
+			tempcurrentSelectedOption[currentQuestion] = {
+				...currentSelectedOption,
+				description: description,
+				score: 1,
+			};
+
+			setCurrentSelectedOption([...tempcurrentSelectedOption]);
+		}
+	};
+
+	const handleSelectOption = (option, selectedOptionNumber) => {
 		const tempcurrentSelectedOption = [...currentSelectedOption];
 		if (option.iscorrect === true) {
 			tempcurrentSelectedOption[currentQuestion] = {
-				optionNumber: index,
+				optionNumber: selectedOptionNumber,
 				score: 1,
 			};
 		} else {
 			tempcurrentSelectedOption[currentQuestion] = {
-				optionNumber: index,
+				optionNumber: selectedOptionNumber,
 				score: 0,
 			};
 		}
@@ -113,6 +139,7 @@ function App() {
 			Array.from({length: questions.length}, () => ({
 				optionNumber: null,
 				score: null,
+				description: "",
 			}))
 		);
 		setScore(0);
@@ -124,8 +151,28 @@ function App() {
 			<>
 				{showScore ? (
 					<>
-						<h2>{score} out of 5</h2>
-						<button onClick={restart} className='bg-blue-700 m-4'>
+						<h2>
+							{score} out of {questions.length}
+						</h2>
+						{
+							// showing the list of qn ans
+							questions.map((item, index) => {
+								return (
+									<div className='py-4'>
+										<div>{item?.question}</div>
+										<div>
+											{item.type === "mcq" &&
+												item?.options[
+													currentSelectedOption[index].optionNumber
+												]?.option}
+											{item.type === "description" &&
+												currentSelectedOption[index].description}
+										</div>
+									</div>
+								);
+							})
+						}
+						<button onClick={restart} className='bg-blue-700 px-4 py-2 text-white'>
 							Restart
 						</button>
 					</>
@@ -137,29 +184,35 @@ function App() {
 									{currentQuestion === index && (
 										<>
 											<h2 className='p-4'>
-												question {index + 1} out of{" "}
+												question {index ? index + 1 : 0} out of
 												{questions.length}
 											</h2>
 											<h2 className='p-4'>
 												question: {question.question}
 											</h2>
-											<div className='flex flex-col text-left items-start justify-start py-4'>
-												{question.options.map((option, index) => {
-													return (
-														<OptionComponent
-															currentSelectedOption={
-																currentSelectedOption
-															}
-															currentQuestion={currentQuestion}
-															handleSelectOption={
-																handleSelectOption
-															}
-															value={option}
-															index={index}
-														/>
-													);
-												})}
-											</div>
+											{question.type === "description" && (
+												<Description
+													value={
+														currentSelectedOption[currentQuestion]
+															.description
+													}
+													handleChange={handleDescriptionQns}
+													intputType='text'
+													maxLength={
+														questions[currentQuestion].maxLength
+													}
+												/>
+											)}
+											{question.type === "mcq" && (
+												<MCQ
+													optionList={question.options}
+													checkSelectedOption={
+														currentSelectedOption[currentQuestion]
+															.optionNumber
+													}
+													handleSelectOption={handleSelectOption}
+												/>
+											)}
 										</>
 									)}
 								</>
@@ -176,7 +229,9 @@ function App() {
 								onClick={handleNext}
 								className='bg-blue-700 m-4 p-4 text-white'
 							>
-								Next{" "}
+								{currentQuestion === questions.length - 1
+									? "Submit"
+									: "Next"}
 							</button>
 						</div>
 					</>
@@ -185,29 +240,5 @@ function App() {
 		</div>
 	);
 }
-
-const OptionComponent = ({
-	handleSelectOption,
-	currentSelectedOption,
-	currentQuestion,
-	value,
-	index,
-}) => {
-	return (
-		<button
-			className={`mx-4 my-2 px-4  ${
-				currentSelectedOption[currentQuestion].optionNumber === index
-					? "bg-green-900 text-white"
-					: ""
-			}`}
-			value={value}
-			onClick={() => {
-				handleSelectOption(value, index);
-			}}
-		>
-			{value.option}
-		</button>
-	);
-};
 
 export default App;

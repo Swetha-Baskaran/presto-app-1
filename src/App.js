@@ -184,7 +184,7 @@ function App() {
 									{currentQuestion === index && (
 										<>
 											<h2 className='p-4'>
-												question {index ? index + 1 : 0} out of
+												question {index ? index + 1 : 1} out of
 												{questions.length}
 											</h2>
 											<h2 className='p-4'>
